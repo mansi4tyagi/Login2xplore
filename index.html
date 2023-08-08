@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html lang="en">
+    <head>
+        <title>Student Example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet"
+              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        
+    </head>
+    <body>
+        <div class="container"> 
+            <h2 style="text-align:center">Student Enrollment form</h2>
+            <form id="empForm" method="post">
+                <div class="form-group">
+                    <span><label for="empId">Student ID:</label> <label id="empIdMsg">
+                        </label></span>
+                    <input type="text" class="form-control" name="empId" id="empId" onchange="getEmp()"
+                           placeholder="Enter Student ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="empName">Student Full Name:</label>
+                    <input type="text" class="form-control" id="empName"
+                           placeholder="Enter Student Name" name="empName">
+                </div>
+                <div class="form-group">
+                    <label for="empClass">Class:</label>
+                    <input type="text" class="form-control" id="empClass"
+                           placeholder="Enter Student Class" name="empClass">
+                </div>
+                <div class="form-group">
+                    <label for="empAddress">Student Address</label>
+                    <input type="text" class="form-control" id="empAddress"
+                           placeholder="Enter Address " name="empAddress">
+                </div>
+                <div class="form-group">
+                    <label for="empBirthdate">Student Birthdate</label>
+                    <input type="date" class="form-control" id="empBirthdate"
+                           placeholder="Enter Birthdate " name="empBirthdate">
+                </div>
+                
+                 <div class="form-group">
+                    <label for="empEnrollment">Student Enrollment Date</label>
+                    <input type="date" class="form-control" id="empEnrollment"
+                           placeholder="Enter Enrollment Date " name="empEnrollment">
+                </div>
+                <input type="button" class="btn btn-primary" id="empSave" value="Save"
+                       onclick="saveStudent();">
+                <input type="button" class="btn btn-primary" id="empChange" value="Change"
+                       onclick="saveEmployee();">
+                <input type="button" class="btn btn-primary" id="empReset" value="Reset"
+                       onclick="resetForm();">
+            </form>
+        </div>
+        <script>
+            $("#empId").focus();
+            function validateAndGetFormData() {
+                var empIdVar = $("#empId").val();
+                if (empIdVar === "") {
+                    alert("Student ID Required Value");
+                    $("#empId").focus();
+                    return "";
+                }
+                var empNameVar = $("#empName").val();
+                if (empNameVar === "") {
+                    alert("Student Name is Required Value");
+                    $("#empName").focus();
+                    return "";
+                }
+                var empClassVar = $("#empClass").val();
+                if (empClassVar === "") {
+                    alert("Student Class is Required Value");
+                    $("#empClass").focus();
+                    return "";
+                }
+                 var empAddressVar = $("#empAddress").val();
+                if (empAddressVar === "") {
+                    alert("empAddress  is Required Value");
+                    $("#empAddress").focus();
+                    return "";
+                }
+                 var empBirthdateVar = $("#empBirthdate").val();
+                if (empBirthdateVar === "") {
+                    alert("empBirthdate  is Required Value");
+                    $("#empBirthdate").focus();
+                    return "";
+                }
+                var empEnrollmentVar = $("#empEnrollment").val();
+                if (empEnrollmentVar === "") {
+                    alert("empEnrollment  is Required Value");
+                    $("#empEnrollment").focus();
+                    return "";
+                }
+                var jsonStrObj = {
+                    empId: empIdVar,
+                    empName: empNameVar,
+                    empClass: empClassVar,
+                    empAddress:empAddressVar,
+                    empBirthdate:empBirthdateVar,
+                    empEnrollment:empEnrollmentVar
+                };
+                return JSON.stringify(jsonStrObj);
+            }
+            empChange.addEventListener('click', function () {
+                // Validate data and update in the database
+                // You'd need to implement this part based on your backend and database
+
+                // After successful update, reset the form
+                form.reset();
+                setFormState(true);
+            });
+            function setFormState(isNewEntry) {
+                empSave.disabled = false;
+                empChange.disabled = true;
+                empReset.disabled = false;
+                
+            }
+
+            // Event listener for the Roll No input field
+            empId.addEventListener('input', function () {
+                if (empId.value === '') {
+                    setFormState(true); // New entry
+                } else {
+                    // Existing entry, fetch data and populate the form
+                    // You'd need to implement this part using AJAX or other methods
+                    setFormState(false);
+                }
+            });
+        // This method is used to create PUT Json request.
+            function createPUTRequest(connToken, jsonObj, dbName, relName) {
+                var putRequest = "{\n"
+                        + "\"token\" : \""
+                        + connToken
+                        + "\","
+                        + "\"dbName\": \""
+                        + dbName
+                           + "\",\n" + "\"cmd\" : \"PUT\",\n"
+                        + "\"rel\" : \""
+                        + relName + "\","
+                        + "\"jsonStr\": \n"
+                        + jsonObj
+                        + "\n"
+                        + "}";
+                return putRequest;
+            }
+            function executeCommand(reqString, dbBaseUrl, apiEndPointUrl) {
+                var url = dbBaseUrl + apiEndPointUrl;
+                var jsonObj;
+                $.post(url, reqString, function (result) {
+                    jsonObj = JSON.parse(result);
+                }).fail(function (result) {
+                    var dataJsonObj = result.responseText;
+                    jsonObj = JSON.parse(dataJsonObj);
+                });
+                return jsonObj;
+            }
+            function resetForm() {
+                $("#empId").val("");
+                $("#empName").val("");
+                $("#empEmail").val("");
+                $("#empAddress").val("");
+                $("#empBirthdate").val("");
+                $("#empEnrollment").val("");
+                $("empSave").prop("disabled",true);
+                $("empChange").prop("disabled",true);
+                $("empReset").prop("disabled",true);
+                $("#empId").focus();
+                
+                
+            }
+            function saveStudent() {
+                var jsonStr = validateAndGetFormData();
+                if (empId.value === SAMPLE.valueOf(empId)) {
+                    return false;
+                }
+                var putReqStr = createPUTRequest("90937545|-31949294344470767|90942501",
+                        jsonStr, "SAMPLE", "EMP-REL");
+                alert(putReqStr);
+                jQuery.ajaxSetup({async: false});
+                var resultObj = executeCommand(putReqStr,
+                        "http://api.login2explore.com:5577", "/api/iml");
+                alert(JSON.stringify(resultObj));
+                jQuery.ajaxSetup({async: true});
+                resetForm();
+            }
+            
+            
+             
+        </script>
+    </body>
+</html>
